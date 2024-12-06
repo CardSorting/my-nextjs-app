@@ -89,13 +89,27 @@ export default function ScenePlayer({ scene, characters }: ScenePlayerProps) {
 
   const playScene = async () => {
     if (audioUrls.length === 0) {
-      await generateAllAudio();
+      setIsLoading(true);
+      try {
+        await generateAllAudio();
+      } catch (error) {
+        console.error('Error generating audio:', error);
+        return; // Don't proceed with playback if audio generation failed
+      }
     }
-    setIsPlaying(true);
-    const currentAudio = audioUrls.find((audio) => audio.lineIndex === currentLineIndex);
-    if (audioRef.current && currentAudio) {
-      audioRef.current.src = currentAudio.audioUrl;
-      await audioRef.current.play();
+
+    if (audioUrls.length > 0) {
+      setIsPlaying(true);
+      const currentAudio = audioUrls.find((audio) => audio.lineIndex === currentLineIndex);
+      if (audioRef.current && currentAudio) {
+        audioRef.current.src = currentAudio.audioUrl;
+        try {
+          await audioRef.current.play();
+        } catch (error) {
+          console.error('Error playing audio:', error);
+          setIsPlaying(false);
+        }
+      }
     }
   };
 
@@ -133,10 +147,17 @@ export default function ScenePlayer({ scene, characters }: ScenePlayerProps) {
       {/* Progress Bar */}
       <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
         <div 
-          className="h-full bg-indigo-600 transition-all duration-300"
-          style={{ width: `${progress}%` }}
+          className={`h-full transition-all duration-300 ${isLoading ? 'bg-gray-400 animate-pulse' : 'bg-indigo-600'}`}
+          style={{ width: `${isLoading ? 100 : progress}%` }}
         />
       </div>
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="text-center py-2">
+          <p className="text-sm text-gray-600">Generating audio, please wait...</p>
+        </div>
+      )}
 
       {/* Current Character */}
       {currentCharacter && (

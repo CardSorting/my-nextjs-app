@@ -66,6 +66,17 @@ const TOGGLE_FAVORITE = gql`
   }
 `;
 
+const UPDATE_LAST_PLAYED = gql`
+  mutation UpdateLastPlayed($sceneId: uuid!) {
+    update_user_scenes(
+      where: { scene_id: { _eq: $sceneId } }
+      _set: { last_played_at: "now()" }
+    ) {
+      affected_rows
+    }
+  }
+`;
+
 interface UserSceneResult {
   id: string;
   scene: {
@@ -87,6 +98,7 @@ interface SceneContextType {
   updateScene: (sceneId: string, updates: Partial<Scene>) => Promise<Scene | null>;
   deleteScene: (sceneId: string) => Promise<{ id: string } | null>;
   toggleFavorite: (sceneId: string, isFavorite: boolean) => Promise<boolean>;
+  updateLastPlayed: (sceneId: string) => Promise<void>;
 }
 
 const SceneContext = createContext<SceneContextType | null>(null);
@@ -106,6 +118,7 @@ export function SceneProvider({ children }: { children: ReactNode }) {
   const [updateSceneMutation] = useMutation(UPDATE_SCENE);
   const [deleteSceneMutation] = useMutation(DELETE_SCENE);
   const [toggleFavoriteMutation] = useMutation(TOGGLE_FAVORITE);
+  const [updateLastPlayedMutation] = useMutation(UPDATE_LAST_PLAYED);
 
   const scenes = userScenesData?.user_scenes.map((userScene: UserSceneResult) => ({
     ...userScene.scene,
@@ -202,6 +215,16 @@ export function SceneProvider({ children }: { children: ReactNode }) {
     [toggleFavoriteMutation, userId]
   );
 
+  const updateLastPlayed = useCallback(async (sceneId: string) => {
+    try {
+      await updateLastPlayedMutation({
+        variables: { sceneId },
+      });
+    } catch (error) {
+      console.error('Error updating last played timestamp:', error);
+    }
+  }, [updateLastPlayedMutation]);
+
   const contextValue = {
     loading,
     error,
@@ -209,7 +232,8 @@ export function SceneProvider({ children }: { children: ReactNode }) {
     createScene,
     updateScene,
     deleteScene,
-    toggleFavorite
+    toggleFavorite,
+    updateLastPlayed
   };
 
   return (
