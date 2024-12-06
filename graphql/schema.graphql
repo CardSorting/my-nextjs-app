@@ -1,0 +1,68 @@
+type Scene {
+  id: ID!
+  title: String!
+  dialogue: JSON!
+  user_id: String
+  created_at: DateTime!
+  updated_at: DateTime!
+  is_public: Boolean!
+  description: String
+  user_scenes: [UserScene!]!
+}
+
+type UserScene {
+  id: ID!
+  user_id: String!
+  scene_id: String!
+  created_at: DateTime!
+  updated_at: DateTime!
+  scene: Scene!
+  is_favorite: Boolean!
+  last_played_at: DateTime
+}
+
+scalar DateTime
+scalar JSON
+
+type Query {
+  scenes: [Scene!]!
+  user_scenes(user_id: ID): [UserScene!]!
+  scene(id: ID!): Scene
+}
+
+type Mutation {
+  insert_scenes_one(object: SceneInput!): Scene
+  update_scenes_by_pk(pk_columns: ScenePkColumns!, _set: SceneInput!): Scene
+  delete_scenes_by_pk(id: ID!): Scene
+  update_user_scenes(where: UserSceneWhereInput!, _set: UserSceneInput!): UserSceneMutationResponse!
+}
+
+input SceneInput {
+  title: String
+  dialogue: JSON
+  user_id: String
+  is_public: Boolean
+  description: String
+}
+
+input ScenePkColumns {
+  id: ID!
+}
+
+input UserSceneInput {
+  is_favorite: Boolean
+  last_played_at: DateTime
+}
+
+input UserSceneWhereInput {
+  user_id: StringComparisonExp
+  scene_id: StringComparisonExp
+}
+
+input StringComparisonExp {
+  _eq: String
+}
+
+type UserSceneMutationResponse {
+  affected_rows: Int!
+}

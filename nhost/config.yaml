@@ -1,0 +1,37 @@
+hasura:
+  version: v2.33.4
+  adminSecret: your-admin-secret
+  webhookSecret: your-webhook-secret
+  jwtSecret: your-jwt-secret
+  settings:
+    enableAllowList: false
+    enableConsole: true
+    devMode: true
+    enableRemoteSchemaPermissions: false
+    enabledAPIs:
+      - graphql
+      - pgdump
+      - config
+      - metadata
+      - version
+    corsDomain: ["*"]
+    inheritFromEnv: true
+
+auth:
+  version: 0.20.1
+  settings:
+    serverUrl: http://localhost:1337
+    clientUrl: http://localhost:3000
+    allowedRedirectUrls:
+      - http://localhost:3000
+    requireEmailVerification: false
+    gravatarEnabled: true
+    signInMethods:
+      - email
+      - magic-link
+    locale:
+      default: en
+    userDefaultRole: user
+    userDefaultAllowedRoles:
+      - user
+      - me

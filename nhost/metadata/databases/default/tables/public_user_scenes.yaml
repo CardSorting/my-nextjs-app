@@ -1,0 +1,53 @@
+table:
+  name: user_scenes
+  schema: public
+configuration:
+  custom_column_names: {}
+  custom_root_fields: {}
+object_relationships:
+  - name: scene
+    using:
+      foreign_key_constraint_on: scene_id
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - id
+        - user_id
+        - scene_id
+        - is_favorite
+        - last_played_at
+        - created_at
+        - updated_at
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
+      columns:
+        - scene_id
+        - is_favorite
+        - last_played_at
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - is_favorite
+        - last_played_at
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+      check: null
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id

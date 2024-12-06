@@ -1,0 +1,70 @@
+query GetUserScenes($userId: ID) {
+  user_scenes(user_id: $userId) {
+    id
+    scene {
+      id
+      title
+      dialogue
+      description
+      is_public
+      created_at
+      updated_at
+    }
+    is_favorite
+    last_played_at
+  }
+}
+
+mutation CreateScene($scene: SceneInput!) {
+  insert_scenes_one(object: $scene) {
+    id
+    title
+    dialogue
+    description
+    is_public
+    created_at
+    updated_at
+  }
+}
+
+mutation UpdateScene($id: ID!, $updates: SceneInput!) {
+  update_scenes_by_pk(pk_columns: { id: $id }, _set: $updates) {
+    id
+    title
+    dialogue
+    description
+    is_public
+    created_at
+    updated_at
+  }
+}
+
+mutation DeleteScene($id: ID!) {
+  delete_scenes_by_pk(id: $id) {
+    id
+  }
+}
+
+mutation ToggleFavorite($userId: String!, $sceneId: String!, $isFavorite: Boolean!) {
+  update_user_scenes(
+    where: {
+      user_id: { _eq: $userId }
+      scene_id: { _eq: $sceneId }
+    }
+    _set: { is_favorite: $isFavorite }
+  ) {
+    affected_rows
+  }
+}
+
+mutation UpdateLastPlayed($userId: String!, $sceneId: String!) {
+  update_user_scenes(
+    where: {
+      user_id: { _eq: $userId }
+      scene_id: { _eq: $sceneId }
+    }
+    _set: { last_played_at: "now" }
+  ) {
+    affected_rows
+  }
+}

@@ -1,0 +1,164 @@
+- table:
+    schema: public
+    name: scenes
+  configuration:
+    custom_root_fields: {}
+    custom_column_names: {}
+  columns:
+    - name: id
+      type: uuid
+      default: gen_random_uuid()
+    - name: title
+      type: text
+    - name: dialogue
+      type: jsonb
+    - name: user_id
+      type: uuid
+    - name: created_at
+      type: timestamptz
+      default: now()
+    - name: updated_at
+      type: timestamptz
+      default: now()
+    - name: is_public
+      type: boolean
+      default: false
+    - name: description
+      type: text
+  computed_fields: []
+  object_relationships:
+    - name: user
+      using:
+        foreign_key_constraint_on: user_id
+  array_relationships:
+    - name: user_scenes
+      using:
+        foreign_key_constraint_on:
+          column: scene_id
+          table:
+            schema: public
+            name: user_scenes
+  insert_permissions:
+    - role: user
+      permission:
+        check:
+          user_id:
+            _eq: X-Hasura-User-Id
+        set:
+          user_id: X-Hasura-User-Id
+        columns:
+          - title
+          - dialogue
+          - description
+          - is_public
+  select_permissions:
+    - role: user
+      permission:
+        columns:
+          - id
+          - title
+          - dialogue
+          - user_id
+          - created_at
+          - updated_at
+          - is_public
+          - description
+        filter:
+          _or:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - is_public:
+                _eq: true
+  update_permissions:
+    - role: user
+      permission:
+        columns:
+          - title
+          - dialogue
+          - description
+          - is_public
+        filter:
+          user_id:
+            _eq: X-Hasura-User-Id
+        check: null
+  delete_permissions:
+    - role: user
+      permission:
+        filter:
+          user_id:
+            _eq: X-Hasura-User-Id
+
+- table:
+    schema: public
+    name: user_scenes
+  configuration:
+    custom_root_fields: {}
+    custom_column_names: {}
+  columns:
+    - name: id
+      type: uuid
+      default: gen_random_uuid()
+    - name: user_id
+      type: uuid
+    - name: scene_id
+      type: uuid
+    - name: created_at
+      type: timestamptz
+      default: now()
+    - name: updated_at
+      type: timestamptz
+      default: now()
+    - name: is_favorite
+      type: boolean
+      default: false
+    - name: last_played_at
+      type: timestamptz
+  object_relationships:
+    - name: scene
+      using:
+        foreign_key_constraint_on: scene_id
+    - name: user
+      using:
+        foreign_key_constraint_on: user_id
+  insert_permissions:
+    - role: user
+      permission:
+        check:
+          user_id:
+            _eq: X-Hasura-User-Id
+        set:
+          user_id: X-Hasura-User-Id
+        columns:
+          - scene_id
+          - is_favorite
+          - last_played_at
+  select_permissions:
+    - role: user
+      permission:
+        columns:
+          - id
+          - user_id
+          - scene_id
+          - created_at
+          - updated_at
+          - is_favorite
+          - last_played_at
+        filter:
+          user_id:
+            _eq: X-Hasura-User-Id
+  update_permissions:
+    - role: user
+      permission:
+        columns:
+          - is_favorite
+          - last_played_at
+        filter:
+          user_id:
+            _eq: X-Hasura-User-Id
+        check: null
+  delete_permissions:
+    - role: user
+      permission:
+        filter:
+          user_id:
+            _eq: X-Hasura-User-Id

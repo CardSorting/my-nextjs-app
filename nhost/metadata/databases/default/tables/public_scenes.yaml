@@ -1,0 +1,62 @@
+table:
+  name: scenes
+  schema: public
+configuration:
+  custom_column_names: {}
+  custom_root_fields: {}
+array_relationships:
+  - name: user_scenes
+    using:
+      foreign_key_constraint_on:
+        column: scene_id
+        table:
+          name: user_scenes
+          schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - id
+        - title
+        - dialogue
+        - description
+        - is_public
+        - user_id
+        - created_at
+        - updated_at
+      filter:
+        _or:
+          - user_id:
+              _eq: X-Hasura-User-Id
+          - is_public:
+              _eq: true
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
+      columns:
+        - title
+        - dialogue
+        - description
+        - is_public
+        - user_id
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - title
+        - dialogue
+        - description
+        - is_public
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+      check: null
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
